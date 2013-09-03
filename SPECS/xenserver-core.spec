@@ -17,7 +17,7 @@ Requires:       xcp-networkd
 Requires:       xcp-rrdd
 Requires:       squeezed
 Requires:       eliloader
-Requires:       kernel >= 3.4.46 kernel-firmware
+Requires:       kernel >= 2.6.32 kernel-firmware
 Requires:       xen
 
 %description
