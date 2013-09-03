@@ -1,0 +1,11 @@
+--- a/src/Makefile	2013-06-12 12:58:26.000000000 -0700
++++ b/src/Makefile	2013-07-21 14:50:17.961349861 -0700
+@@ -37,7 +37,7 @@
+ HFILES = e1000.h hw.h regs.h defines.h \
+          mac.h nvm.h phy.h manage.h $(FAMILYH) kcompat.h
+ ifeq (,$(BUILD_KERNEL))
+-BUILD_KERNEL=$(shell uname -r)
++BUILD_KERNEL := $(shell rpm -q --queryformat "%{installtime} %{version}-%{release}.%{arch}\n" kernel-devel | sort -nr | sed -n 1p | cut -d' ' -f2)
+ endif
+ 
+ # Use E1000E_PTP compile flag to enable IEEE-1588 PTP (documented in README)

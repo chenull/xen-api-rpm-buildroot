@@ -1,0 +1,50 @@
+From 27b2639f162aef2184b52f24757387ea346fc77a Mon Sep 17 00:00:00 2001
+From: =?utf8?q?J=C3=A1n=20Tomko?= <jtomko@redhat.com>
+Date: Thu, 11 Jul 2013 12:36:59 +0200
+Subject: [PATCH] storage: return -1 when fs pool can't be mounted
+
+Don't reuse the return value of virStorageBackendFileSystemIsMounted.
+If it's 0, we'd return it even if the mount command failed.
+
+Also, don't report another error if it's -1, since one has already
+been reported.
+
+Introduced by 258e06c.
+
+https://bugzilla.redhat.com/show_bug.cgi?id=981251
+(cherry picked from commit 13fde7ceab556804dc6cfb3e56938fb948ffe83d)
+---
+ src/storage/storage_backend_fs.c |   11 +++++++----
+ 1 files changed, 7 insertions(+), 4 deletions(-)
+
+diff --git a/src/storage/storage_backend_fs.c b/src/storage/storage_backend_fs.c
+index 527e261..23d3f4d 100644
+--- a/src/storage/storage_backend_fs.c
++++ b/src/storage/storage_backend_fs.c
+@@ -357,6 +357,7 @@ virStorageBackendFileSystemMount(virStoragePoolObjPtr pool) {
+                       pool->def->source.format == VIR_STORAGE_POOL_NETFS_GLUSTERFS);
+     virCommandPtr cmd = NULL;
+     int ret = -1;
++    int rc;
+ 
+     if (pool->def->type == VIR_STORAGE_POOL_NETFS) {
+         if (pool->def->source.nhost != 1) {
+@@ -383,10 +384,12 @@ virStorageBackendFileSystemMount(virStoragePoolObjPtr pool) {
+     }
+ 
+     /* Short-circuit if already mounted */
+-    if ((ret = virStorageBackendFileSystemIsMounted(pool)) != 0) {
+-        virReportError(VIR_ERR_OPERATION_INVALID,
+-                       _("Target '%s' is already mounted"),
+-                       pool->def->target.path);
++    if ((rc = virStorageBackendFileSystemIsMounted(pool)) != 0) {
++        if (rc == 1) {
++            virReportError(VIR_ERR_OPERATION_INVALID,
++                           _("Target '%s' is already mounted"),
++                           pool->def->target.path);
++        }
+         return -1;
+     }
+ 
+-- 
+1.7.1

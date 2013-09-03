@@ -1,0 +1,78 @@
+From 76d42d7e6114af5e79262f195a6535088ded14e5 Mon Sep 17 00:00:00 2001
+From: Cole Robinson <crobinso@redhat.com>
+Date: Sat, 29 Sep 2012 13:02:31 +0800
+Subject: [PATCH] Don't copy USB bus/address by default from node device
+Mail-Followup-To: rhvirt-patches@redhat.com
+
+Resolve BZ:https://bugzilla.redhat.com/show_bug.cgi?id=820303
+(cherry picked from commit 8900b498dd6eb507b1b03a4db05523ff38dc45e1)
+Putting vendor+product AND bus+addr in the XML is only needed if the
+user has duplicate USB devices attached to the machine. If we always
+pass bus + addr, then we've regressed for the vast majority of users
+who don't care about duplicate devices.
+---
+ virtinst/VirtualHostDevice.py | 6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
+
+diff --git a/virtinst/VirtualHostDevice.py b/virtinst/VirtualHostDevice.py
+index 99f09eb..9d2d1b5 100644
+--- a/virtinst/VirtualHostDevice.py
++++ b/virtinst/VirtualHostDevice.py
+@@ -216,8 +216,10 @@ class VirtualHostDeviceUSB(VirtualHostDevice):
+ 
+         self.vendor = nodedev.vendor_id
+         self.product = nodedev.product_id
+-        self.bus = nodedev.bus
+-        self.device = nodedev.device
++
++        if not (self.vendor or self.product):
++            self.bus = nodedev.bus
++            self.device = nodedev.device
+ 
+     def _get_source_xml(self):
+         xml = ""
+-- 
+1.7.12.3
+
+commit 63505666ac3772d725b85582598120d7977c410e
+Author: Cole Robinson <crobinso@redhat.com>
+Date:   Sun Jul 8 17:05:30 2012 -0400
+
+    Fix test failures from USB addr changes
+
+diff --git a/tests/nodedev-xml/devxml/usbdev1.xml b/tests/nodedev-xml/devxml/usbdev1.xml
+index 96d5ed8..cf0b50a 100644
+--- a/tests/nodedev-xml/devxml/usbdev1.xml
++++ b/tests/nodedev-xml/devxml/usbdev1.xml
+@@ -2,5 +2,6 @@
+       <source>
+         <vendor id='0x0781'/>
+         <product id='0x5151'/>
++        <address bus='1' device='4'/>
+       </source>
+     </hostdev>
+diff --git a/virtinst/VirtualHostDevice.py b/virtinst/VirtualHostDevice.py
+index e3563f7..aa33caf 100644
+--- a/virtinst/VirtualHostDevice.py
++++ b/virtinst/VirtualHostDevice.py
+@@ -219,13 +219,19 @@ class VirtualHostDeviceUSB(VirtualHostDevice):
+ 
+     def _get_source_xml(self):
+         xml = ""
++        found = False
++
+         if self.vendor and self.product:
+             xml += "        <vendor id='%s'/>\n" % self.vendor
+             xml += "        <product id='%s'/>\n" % self.product
++            found = True
++
+         if self.bus and self.device:
+             xml += "        <address bus='%s' device='%s'/>\n" % (self.bus,
+                                                                   self.device)
+-        else:
++            found = True
++
++        if not found:
+             raise RuntimeError(_("'vendor' and 'product', or 'bus' and "
+                                  " 'device' are required."))
+         return xml

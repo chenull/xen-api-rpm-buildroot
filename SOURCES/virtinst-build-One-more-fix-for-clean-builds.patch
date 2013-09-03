@@ -1,0 +1,57 @@
+From: Martin Kletzander <mkletzan@redhat.com>
+Subject: [RHEL-6.4 python-virtinst PATCH] build: One more fix for clean builds
+Date: Wed, 19 Dec 2012 17:56:43 +0100
+Message-Id: <459451147a37d7d7028465b916682ac887b15293.1355934252.git.mkletzan@redhat.com>
+
+https://bugzilla.redhat.com/show_bug.cgi?id=832339
+
+Generating manpages within build phase is OK (when building rpm),
+unless we don't update the list of OSes on a cleanly installed
+machine.  That fails due to lots of dependencies being pulled in.
+
+Instead of adding all of those dependecies into BuildRequires, I
+propose (with this patch) a solution by splitting _update_manpages()
+into two parts:
+
+  1) First part is updating the list of OSes (requires osdict and all
+     the other countless dependencies) and then calls the second part
+
+  2) Second part (called _regenerate_manpages()) just creates manpages
+     from podfiles as it was done at the end of the _update_manpages()
+
+This enables us calling the _update_manpages within the sdist phase
+(nothing has changed there), and being able to call the
+_regenerate_manpages() to update the contents with everybuild, but
+without depending on anything else than pod2man binary.
+(cherry picked from commit 38691d73adf61e26c8f2c5f1e2acb99449bea5ca)
+---
+ setup.py | 7 ++++---
+ 1 file changed, 4 insertions(+), 3 deletions(-)
+
+diff --git a/setup.py b/setup.py
+index f6b14bd..91774aa 100755
+--- a/setup.py
++++ b/setup.py
+@@ -81,7 +81,9 @@ def _update_manpages():
+         outfd.write(outp)
+         outfd.close()
+
+-    # Generate new manpages
++    _regenerate_manpages()
++
++def _regenerate_manpages():
+     if os.system("make -C man/en"):
+         raise RuntimeError("Couldn't generate man pages.")
+
+@@ -355,8 +357,7 @@ class mybuild(build):
+
+         build.run(self)
+
+-        # Update and generate man pages, but not before the build is done!
+-        _update_manpages()
++        _regenerate_manpages()
+
+ setup(
+     name='virtinst',
+-- 
+1.8.0.2

@@ -1,0 +1,37 @@
+From df7a60b3b6446f33a2bcf052b4576a54263f9402 Mon Sep 17 00:00:00 2001
+From: Cole Robinson <crobinso@redhat.com>
+Date: Sun, 8 Jul 2012 17:17:55 -0400
+Subject: [PATCH] Add RHEL7 to osdict
+Mail-Followup-To: rhvirt-patches@redhat.com
+
+https://bugzilla.redhat.com/show_bug.cgi?id=803631
+
+(cherry picked from commit ed0b7fa4a44e85070c34952e68089e6d94b2f230)
+---
+ virtinst/osdict.py | 10 ++++++++++
+ 1 file changed, 10 insertions(+)
+
+diff --git a/virtinst/osdict.py b/virtinst/osdict.py
+index e59f7a4..6e74dfa 100644
+--- a/virtinst/osdict.py
++++ b/virtinst/osdict.py
+@@ -267,6 +267,16 @@ OS_TYPES = {
+             INPUT: USB_TABLET,
+         }
+     },
++    "rhel7": {
++        "label": "Red Hat Enterprise Linux 7",
++        "distro": "rhel",
++        "supported": False,
++        "devices" : {
++            DISK : VIRTIO_DISK,
++            NET  : VIRTIO_NET,
++            INPUT: USB_TABLET,
++        }
++    },
+ 
+     "fedora5": {
+         "sortby": "fedora05",
+-- 
+1.7.12.3
+

@@ -1,0 +1,20 @@
+commit 061668208fa6cd8f45cf66dd921a56386de3f3b5
+Author: Cole Robinson <crobinso@redhat.com>
+Date:   Mon Aug 29 13:12:32 2011 -0400
+
+    VirtualDeviceAddress: Only clear XML if not building from scratch
+
+diff --git a/virtinst/VirtualDevice.py b/virtinst/VirtualDevice.py
+index 386eb00..869d50e 100644
+--- a/virtinst/VirtualDevice.py
++++ b/virtinst/VirtualDevice.py
+@@ -170,7 +170,8 @@ class VirtualDeviceAddress(XMLBuilderDomain):
+         self._unit = None
+         self._port = None
+ 
+-        self._remove_child_xpath("./address")
++        if self._is_parse():
++            self._remove_child_xpath("./address")
+ 
+     def _get_type(self):
+         return self._type

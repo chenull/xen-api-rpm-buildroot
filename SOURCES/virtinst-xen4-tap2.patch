@@ -1,0 +1,12 @@
+diff -uNrp a/virtinst/VirtualDisk.py b/virtinst/VirtualDisk.py
+--- a/virtinst/VirtualDisk.py	2013-06-14 04:07:10.654638895 -0500
++++ b/virtinst/VirtualDisk.py	2013-06-14 05:38:21.898569219 -0500
+@@ -283,7 +283,7 @@ class VirtualDisk(VirtualDevice):
+ 
+     DRIVER_FILE = "file"
+     DRIVER_PHY = "phy"
+-    DRIVER_TAP = "tap"
++    DRIVER_TAP = "tap2"
+     DRIVER_QEMU = "qemu"
+     driver_names = [DRIVER_FILE, DRIVER_PHY, DRIVER_TAP, DRIVER_QEMU]
+ 

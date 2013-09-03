@@ -1,0 +1,19 @@
+commit 7442fbca3b394e8ba9e1e54d97d712146aa680f8
+Author: Cole Robinson <crobinso@redhat.com>
+Date:   Mon Feb 13 10:48:59 2012 -0500
+
+    XML escape strings that we are setting in XML doc
+
+diff --git a/virtinst/XMLBuilderDomain.py b/virtinst/XMLBuilderDomain.py
+index efb678e..40887ec 100644
+--- a/virtinst/XMLBuilderDomain.py
++++ b/virtinst/XMLBuilderDomain.py
+@@ -349,7 +349,7 @@ def _xml_property(fget=None, fset=None, fdel=None, doc=None,
+                     # Boolean property, creating the node is enough
+                     pass
+                 else:
+-                    node.setContent(str(val))
++                    node.setContent(_util.xml_escape(str(val)))
+             else:
+                 _remove_xpath_node(self._xml_node, usexpath)
+ 

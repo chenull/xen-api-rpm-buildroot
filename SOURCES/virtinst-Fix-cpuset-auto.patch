@@ -1,0 +1,28 @@
+From c5d31c6fcc26d16b9e225a22d8b0d1b58c3fecbb Mon Sep 17 00:00:00 2001
+From: Cole Robinson <crobinso@redhat.com>
+Date: Wed, 24 Oct 2012 09:39:04 -0400
+Subject: [PATCH] Fix cpuset=auto
+
+https://bugzilla.redhat.com/show_bug.cgi?id=834495
+
+Just the necessary fix from a5f121243e034a37d065fade29d6a99eb60af631
+---
+ virtinst/cli.py | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/virtinst/cli.py b/virtinst/cli.py
+index 87d4190..7849853 100644
+--- a/virtinst/cli.py
++++ b/virtinst/cli.py
+@@ -831,7 +831,7 @@ def get_cpuset(guest, cpuset):
+         try:
+             tmpset = Guest.generate_cpuset(conn, guest.memory)
+         except Exception, e:
+-            logging.debug("Not setting cpuset", str(e))
++            logging.debug("Not setting cpuset: %s" % str(e))
+ 
+         if tmpset:
+             logging.debug("Auto cpuset is: %s" % tmpset)
+-- 
+1.7.12.4
+

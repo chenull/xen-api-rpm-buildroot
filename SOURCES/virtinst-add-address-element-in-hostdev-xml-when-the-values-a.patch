@@ -1,0 +1,28 @@
+From 3bd9c10cb777ce6a8f65732b57de5366f820124e Mon Sep 17 00:00:00 2001
+From: Guannan Ren <gren@redhat.com>
+Date: Sat, 22 Sep 2012 21:43:53 +0800
+Subject: [PATCH] add address element in hostdev xml when the values are present
+Mail-Followup-To: rhvirt-patches@redhat.com
+
+Resolve BZ:https://bugzilla.redhat.com/show_bug.cgi?id=820303
+(cherry picked from commit fc55ae51395033838e6812a4a28c2971c6c94343)
+---
+ virtinst/VirtualHostDevice.py | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/virtinst/VirtualHostDevice.py b/virtinst/VirtualHostDevice.py
+index b6c6bb0..99f09eb 100644
+--- a/virtinst/VirtualHostDevice.py
++++ b/virtinst/VirtualHostDevice.py
+@@ -224,7 +224,7 @@ class VirtualHostDeviceUSB(VirtualHostDevice):
+         if self.vendor and self.product:
+             xml += "        <vendor id='%s'/>\n" % self.vendor
+             xml += "        <product id='%s'/>\n" % self.product
+-        elif self.bus and self.device:
++        if self.bus and self.device:
+             xml += "        <address bus='%s' device='%s'/>\n" % (self.bus,
+                                                                   self.device)
+         else:
+-- 
+1.7.12.3
+

@@ -1,0 +1,20 @@
+commit 8f803765367dce3c9fe6da0d35d66fbbf6760c64
+Author: Cole Robinson <crobinso@redhat.com>
+Date:   Tue Jan 17 15:23:25 2012 -0500
+
+    util: Make xml_escape handle None
+
+diff --git a/virtinst/util.py b/virtinst/util.py
+index f31be0b..17c873b 100644
+--- a/virtinst/util.py
++++ b/virtinst/util.py
+@@ -275,6 +275,9 @@ def system(cmd):
+ 
+ def xml_escape(str):
+     """Replaces chars ' " < > & with xml safe counterparts"""
++    if str is None:
++        return None
++
+     str = str.replace("&", "&amp;")
+     str = str.replace("'", "&apos;")
+     str = str.replace("\"", "&quot;")

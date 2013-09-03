@@ -1,0 +1,29 @@
+--- virtinst-0.600.0/po/ja.po.orig	2011-07-27 08:49:56.000000000 +0900
++++ virtinst-0.600.0/po/ja.po	2012-01-21 23:40:53.659830463 +0900
+@@ -1232,7 +1232,7 @@ 
+ #: virtinst/Storage.py:1208
+ #, python-format
+ msgid "Allocating '%s'"
+-msgstr "'%s' を確保中"
++msgstr "割り当て中 '%s'"
+ 
+ #: virtinst/Storage.py:1273
+ #, python-format
+@@ -2053,7 +2053,7 @@ 
+ msgid ""
+ "New fixed MAC address for the clone guest. Default is a randomly generated "
+ "MAC"
+-msgstr "クローンゲスト用の固定 MAC アドレス。省略値はランダムに生成されます"
++msgstr "クローンゲスト用の固定 MAC アドレス 省略値はランダムに生成されます"
+ 
+ #: virt-clone:171 virt-image:91 virt-install:920
+ msgid "Miscellaneous Options"
+@@ -2071,7 +2071,7 @@ 
+ 
+ #: virt-clone:179 virt-convert:85 virt-image:107 virt-install:947
+ msgid "Print debugging information"
+-msgstr "デバッグ情報を印刷"
++msgstr "デバッグ情報を表示します"
+ 
+ #: virt-clone:182 virt-install:944
+ msgid "Request user input for ambiguous situations or required options."

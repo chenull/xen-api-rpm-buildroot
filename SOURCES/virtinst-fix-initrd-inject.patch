@@ -1,0 +1,56 @@
+commit b7054426336929abb0ab0d822ad208a11d418904
+Author: Cole Robinson <crobinso@redhat.com>
+Date:   Tue Aug 23 15:35:32 2011 -0400
+
+    virt-install: Fix --initrd-inject
+    
+    And add unit tests for it!
+
+diff --git a/tests/cli-test-xml/faketree/images/pxeboot/initrd.img b/tests/cli-test-xml/faketree/images/pxeboot/initrd.img
+index 0f3339f..256e89a 100644
+Binary files a/tests/cli-test-xml/faketree/images/pxeboot/initrd.img and b/tests/cli-test-xml/faketree/images/pxeboot/initrd.img differ
+diff --git a/tests/cli-test-xml/faketree/images/pxeboot/vmlinuz b/tests/cli-test-xml/faketree/images/pxeboot/vmlinuz
+index fa797a2..af1a261 100644
+Binary files a/tests/cli-test-xml/faketree/images/pxeboot/vmlinuz and b/tests/cli-test-xml/faketree/images/pxeboot/vmlinuz differ
+diff --git a/tests/clitest.py b/tests/clitest.py
+index 7f332dc..26fc68e 100644
+--- a/tests/clitest.py
++++ b/tests/clitest.py
+@@ -265,6 +265,11 @@ args_dict = {
+         "--arch i486 --pxe",
+         # Directory tree URL install
+         "--hvm --location %(TREEDIR)s",
++        # initrd-inject
++        "--hvm --location %(TREEDIR)s --initrd-inject virt-install --extra-args ks=file:/virt-install",
++        # initrd-inject with manual kernel/initrd
++        "--hvm --location %(TREEDIR)s --initrd-inject virt-install --extra-args ks=file:/virt-install",
++        # Directory tree URL install with extra-args
+         # Directory tree URL install with extra-args
+         "--hvm --location %(TREEDIR)s --extra-args console=ttyS0",
+         # Directory tree CDROM install
+diff --git a/virtinst/DistroInstaller.py b/virtinst/DistroInstaller.py
+index 88963db..0bfe5b0 100644
+--- a/virtinst/DistroInstaller.py
++++ b/virtinst/DistroInstaller.py
+@@ -270,11 +270,10 @@ class DistroInstaller(Installer.Installer):
+                            transient=transient)
+         self.install_devices.append(disk)
+ 
+-    def _perform_initrd_injections(self):
++    def _perform_initrd_injections(self, initrd):
+         """
+         Insert files into the root directory of the initial ram disk
+         """
+-        initrd = self._install_bootconfig.initrd
+         tempdir = tempfile.mkdtemp(dir=self.scratchdir)
+         os.chmod(tempdir, 0775)
+ 
+@@ -379,7 +378,7 @@ class DistroInstaller(Installer.Installer):
+             self._tmpfiles.append(initrdfn)
+ 
+         if self._initrd_injections:
+-            self._perform_initrd_injections()
++            self._perform_initrd_injections(initrdfn)
+ 
+         # If required, upload media to an accessible guest location
+         kernelfn, initrdfn = self._upload_media(guest, meter,

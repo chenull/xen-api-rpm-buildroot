@@ -1,0 +1,21 @@
+commit 9b38d38851c1b24783ad94655d8cd19cfeb1f011
+Author: Cole Robinson <crobinso@redhat.com>
+Date:   Thu Sep 22 10:50:58 2011 -0400
+
+    Storage: Add QED to volume format list
+
+diff --git a/virtinst/Storage.py b/virtinst/Storage.py
+index ba385eb..a1c2eec 100644
+--- a/virtinst/Storage.py
++++ b/virtinst/Storage.py
+@@ -1291,8 +1291,8 @@ class FileVolume(StorageVolume):
+     _file_type = VIR_STORAGE_VOL_FILE
+ 
+     formats = ["raw", "bochs", "cloop", "cow", "dmg", "iso", "qcow",
+-               "qcow2", "vmdk", "vpc"]
+-    create_formats = ["raw", "cow", "qcow", "qcow2", "vmdk", "vpc"]
++               "qcow2", "qed", "vmdk", "vpc"]
++    create_formats = ["raw", "cow", "qcow", "qcow2", "qed", "vmdk", "vpc"]
+ 
+     # Register applicable property methods from parent class
+     perms = property(StorageObject.get_perms, StorageObject.set_perms)

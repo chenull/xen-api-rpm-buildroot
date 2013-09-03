@@ -1,0 +1,62 @@
+commit 9ad2e3a68b8f5cc1b5c11588dc1c4d5edcca3deb
+Author: Cole Robinson <crobinso@redhat.com>
+Date:   Tue Aug 30 14:54:47 2011 -0400
+
+    VirtualDisk: Fix logic error determining if we are creating storage
+    
+    If creating a storage volume, the logic would fall through and check if
+    the path existed locally. This isn't valid for remote connections.
+    
+    Addtionally cleanup similar functions to be easier to read and hopefully
+    avoid these problems in the future.
+
+diff --git a/virtinst/VirtualDisk.py b/virtinst/VirtualDisk.py
+index 87b72ad..6ea3bfd 100644
+--- a/virtinst/VirtualDisk.py
++++ b/virtinst/VirtualDisk.py
+@@ -1123,23 +1123,38 @@ class VirtualDisk(VirtualDevice):
+         Return bool representing if managed storage parameters have
+         been explicitly specified or filled in
+         """
+-        return (self.vol_object != None or self.vol_install != None or
+-                self._pool_object != None)
++        return bool(self.vol_object != None or
++                    self.vol_install != None or
++                    self._pool_object != None)
+ 
+     def __creating_storage(self):
+         """
+         Return True if the user requested us to create a device
+         """
+-        return not (self.__no_storage() or
+-                    (self.__managed_storage() and
+-                     self.vol_object or self._pool_object) or
+-                    (self.path and os.path.exists(self.path)))
++        if self.__no_storage():
++            return False
++
++        if self.__managed_storage():
++            if self.vol_object or self._pool_object:
++                return False
++            return True
++
++        if (not self.is_remote() and
++            self.path and
++            os.path.exists(self.path)):
++            return False
++
++        return True
+ 
+     def __no_storage(self):
+         """
+         Return True if no path or storage was specified
+         """
+-        return (not self.__managed_storage() and not self.path)
++        if self.__managed_storage():
++            return False
++        if self.path:
++            return False
++        return True
+ 
+ 
+     def _storage_security_label(self):

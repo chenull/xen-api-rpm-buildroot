@@ -1,0 +1,37 @@
+From f5009405f504c5037fa3d869f9d1241029122078 Mon Sep 17 00:00:00 2001
+From: =?utf8?q?J=C3=A1n=20Tomko?= <jtomko@redhat.com>
+Date: Tue, 25 Jun 2013 15:10:27 +0200
+Subject: [PATCH] virsh: edit: don't leak XML string on reedit or redefine
+
+Free the old XML strings before overwriting them if the user
+has chosen to reedit the file or force the redefinition.
+
+Found by Alex Jia trying to reproduce another bug:
+https://bugzilla.redhat.com/show_bug.cgi?id=977430#c3
+(cherry picked from commit 1e3a252974c8e5c650f1d84dc2b167f0ae8cee3c)
+---
+ tools/virsh-edit.c |    2 ++
+ 1 files changed, 2 insertions(+), 0 deletions(-)
+
+diff --git a/tools/virsh-edit.c b/tools/virsh-edit.c
+index 61008a9..44759e4 100644
+--- a/tools/virsh-edit.c
++++ b/tools/virsh-edit.c
+@@ -86,6 +86,7 @@ reedit:
+         goto edit_cleanup;
+ 
+     /* Read back the edited file. */
++    VIR_FREE(doc_edited);
+     doc_edited = vshEditReadBackFile(ctl, tmp);
+     if (!doc_edited)
+         goto edit_cleanup;
+@@ -102,6 +103,7 @@ redefine:
+      * it was being edited?  This also catches problems such as us
+      * losing a connection or the object going away.
+      */
++    VIR_FREE(doc_reread);
+     doc_reread = (EDIT_GET_XML);
+     if (!doc_reread)
+         goto edit_cleanup;
+-- 
+1.7.1

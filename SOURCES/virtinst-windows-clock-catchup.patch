@@ -1,0 +1,192 @@
+diff --git a/tests/cli-test-xml/compare/kvm-win2k3-cdrom.xml b/tests/cli-test-xml/compare/kvm-win2k3-cdrom.xml
+index 75b9b0c..c8fd4b4 100644
+--- a/tests/cli-test-xml/compare/kvm-win2k3-cdrom.xml
++++ b/tests/cli-test-xml/compare/kvm-win2k3-cdrom.xml
+@@ -12,7 +12,9 @@
+   <features>
+     <acpi/><apic/><pae/>
+   </features>
+-  <clock offset="localtime"/>
++  <clock offset="localtime">
++    <timer name="rtc" tickpolicy="catchup"/>
++  </clock>
+   <on_poweroff>destroy</on_poweroff>
+   <on_reboot>destroy</on_reboot>
+   <on_crash>destroy</on_crash>
+@@ -55,7 +57,9 @@
+   <features>
+     <acpi/><apic/><pae/>
+   </features>
+-  <clock offset="localtime"/>
++  <clock offset="localtime">
++    <timer name="rtc" tickpolicy="catchup"/>
++  </clock>
+   <on_poweroff>destroy</on_poweroff>
+   <on_reboot>destroy</on_reboot>
+   <on_crash>destroy</on_crash>
+@@ -98,7 +102,9 @@
+   <features>
+     <acpi/><apic/><pae/>
+   </features>
+-  <clock offset="localtime"/>
++  <clock offset="localtime">
++    <timer name="rtc" tickpolicy="catchup"/>
++  </clock>
+   <on_poweroff>destroy</on_poweroff>
+   <on_reboot>restart</on_reboot>
+   <on_crash>restart</on_crash>
+diff --git a/tests/cli-test-xml/compare/w2k3-cdrom.xml b/tests/cli-test-xml/compare/w2k3-cdrom.xml
+index 32c47b0..2fa2335 100644
+--- a/tests/cli-test-xml/compare/w2k3-cdrom.xml
++++ b/tests/cli-test-xml/compare/w2k3-cdrom.xml
+@@ -15,7 +15,9 @@
+   <cpu>
+     <topology sockets='1' cores='4' threads='1'/>
+   </cpu>
+-  <clock offset="localtime"/>
++  <clock offset="localtime">
++    <timer name="rtc" tickpolicy="catchup"/>
++  </clock>
+   <on_poweroff>destroy</on_poweroff>
+   <on_reboot>destroy</on_reboot>
+   <on_crash>destroy</on_crash>
+@@ -53,7 +55,9 @@
+   <cpu>
+     <topology sockets='1' cores='4' threads='1'/>
+   </cpu>
+-  <clock offset="localtime"/>
++  <clock offset="localtime">
++    <timer name="rtc" tickpolicy="catchup"/>
++  </clock>
+   <on_poweroff>destroy</on_poweroff>
+   <on_reboot>destroy</on_reboot>
+   <on_crash>destroy</on_crash>
+@@ -91,7 +95,9 @@
+   <cpu>
+     <topology sockets='1' cores='4' threads='1'/>
+   </cpu>
+-  <clock offset="localtime"/>
++  <clock offset="localtime">
++    <timer name="rtc" tickpolicy="catchup"/>
++  </clock>
+   <on_poweroff>destroy</on_poweroff>
+   <on_reboot>restart</on_reboot>
+   <on_crash>restart</on_crash>
+diff --git a/tests/xmlconfig-xml/install-windowsxp-xennew.xml b/tests/xmlconfig-xml/install-windowsxp-xennew.xml
+index 8108033..213aa68 100644
+--- a/tests/xmlconfig-xml/install-windowsxp-xennew.xml
++++ b/tests/xmlconfig-xml/install-windowsxp-xennew.xml
+@@ -13,7 +13,9 @@
+   <features>
+     <acpi/><apic/>
+   </features>
+-  <clock offset="localtime"/>
++  <clock offset="localtime">
++    <timer name="rtc" tickpolicy="catchup"/>
++  </clock>
+   <on_poweroff>destroy</on_poweroff>
+   <on_reboot>destroy</on_reboot>
+   <on_crash>destroy</on_crash>
+diff --git a/tests/xmlconfig-xml/install-windowsxp-xenold.xml b/tests/xmlconfig-xml/install-windowsxp-xenold.xml
+index 4f3b017..ab7b512 100644
+--- a/tests/xmlconfig-xml/install-windowsxp-xenold.xml
++++ b/tests/xmlconfig-xml/install-windowsxp-xenold.xml
+@@ -10,7 +10,9 @@
+     <boot dev='cdrom'/>
+     <boot dev='hd'/>
+   </os>
+-  <clock offset="localtime"/>
++  <clock offset="localtime">
++    <timer name="rtc" tickpolicy="catchup"/>
++  </clock>
+   <on_poweroff>destroy</on_poweroff>
+   <on_reboot>destroy</on_reboot>
+   <on_crash>destroy</on_crash>
+diff --git a/tests/xmlconfig-xml/winxp-kvm-stage1.xml b/tests/xmlconfig-xml/winxp-kvm-stage1.xml
+index cd3cf3a..dd8b669 100644
+--- a/tests/xmlconfig-xml/winxp-kvm-stage1.xml
++++ b/tests/xmlconfig-xml/winxp-kvm-stage1.xml
+@@ -12,7 +12,9 @@
+   <features>
+     <acpi/><apic/>
+   </features>
+-  <clock offset="localtime"/>
++  <clock offset="localtime">
++    <timer name="rtc" tickpolicy="catchup"/>
++  </clock>
+   <on_poweroff>destroy</on_poweroff>
+   <on_reboot>destroy</on_reboot>
+   <on_crash>destroy</on_crash>
+diff --git a/tests/xmlconfig-xml/winxp-kvm-stage2.xml b/tests/xmlconfig-xml/winxp-kvm-stage2.xml
+index 9433dc2..6e12979 100644
+--- a/tests/xmlconfig-xml/winxp-kvm-stage2.xml
++++ b/tests/xmlconfig-xml/winxp-kvm-stage2.xml
+@@ -11,7 +11,9 @@
+   <features>
+     <acpi/><apic/>
+   </features>
+-  <clock offset="localtime"/>
++  <clock offset="localtime">
++    <timer name="rtc" tickpolicy="catchup"/>
++  </clock>
+   <on_poweroff>destroy</on_poweroff>
+   <on_reboot>destroy</on_reboot>
+   <on_crash>destroy</on_crash>
+diff --git a/tests/xmlconfig-xml/winxp-kvm-stage3.xml b/tests/xmlconfig-xml/winxp-kvm-stage3.xml
+index cb0ca1e..6f19dd4 100644
+--- a/tests/xmlconfig-xml/winxp-kvm-stage3.xml
++++ b/tests/xmlconfig-xml/winxp-kvm-stage3.xml
+@@ -11,7 +11,9 @@
+   <features>
+     <acpi/><apic/>
+   </features>
+-  <clock offset="localtime"/>
++  <clock offset="localtime">
++    <timer name="rtc" tickpolicy="catchup"/>
++  </clock>
+   <on_poweroff>destroy</on_poweroff>
+   <on_reboot>restart</on_reboot>
+   <on_crash>restart</on_crash>
+diff --git a/virtinst/Clock.py b/virtinst/Clock.py
+index bc38e77..c41fb6a 100644
+--- a/virtinst/Clock.py
++++ b/virtinst/Clock.py
+@@ -31,6 +31,7 @@ class Clock(XMLBuilderDomain.XMLBuilderDomain):
+                                                    parsexmlnode, caps)
+ 
+         self._offset = None
++        self._windows_catchup = None
+ 
+     def get_offset(self):
+         return self._offset
+@@ -43,4 +44,16 @@ class Clock(XMLBuilderDomain.XMLBuilderDomain):
+         if not self.offset:
+             return ""
+ 
+-        return """  <clock offset="%s"/>""" % self.offset
++        xml = "  <clock offset=\"%s\"" % self.offset
++
++        timerxml = ""
++        if self._windows_catchup:
++            timerxml += """    <timer name="rtc" tickpolicy="catchup"/>\n"""
++
++        if timerxml:
++            xml += ">\n" + timerxml
++            xml += "  </clock>"
++        else:
++            xml += "/>"
++
++        return xml
+diff --git a/virtinst/Guest.py b/virtinst/Guest.py
+index 46ec340..2278840 100644
+--- a/virtinst/Guest.py
++++ b/virtinst/Guest.py
+@@ -1402,6 +1402,8 @@ class Guest(XMLBuilderDomain.XMLBuilderDomain):
+ 
+         if self.clock.offset == None:
+             self.clock.offset = self._lookup_osdict_key("clock")
++        if self.os_type == "windows":
++            self.clock._windows_catchup = True
+ 
+         if features["acpi"] is None:
+             features["acpi"] = self._lookup_osdict_key("acpi")

@@ -1,0 +1,48 @@
+diff -u b/src/libxl/libxl_driver.c b/src/libxl/libxl_driver.c
+--- b/src/libxl/libxl_driver.c	2013-06-12 16:36:57.777233620 +0100
++++ b/src/libxl/libxl_driver.c	2013-06-12 09:28:05.344885653 +0100
+@@ -473,8 +473,7 @@
+                   err ? err->message : _("unknown error"));
+     }
+ 
+-    if (vm)
+-        virDomainObjUnlock(vm);
++    virDomainObjUnlock(vm);
+ }
+ 
+ static int
+@@ -996,7 +995,8 @@
+                                      restore_fd < 0 ?
+                                          VIR_DOMAIN_EVENT_STARTED_BOOTED :
+                                          VIR_DOMAIN_EVENT_STARTED_RESTORED);
+-    libxlDomainEventQueue(driver, event);
++    if (event)
++        libxlDomainEventQueue(driver, event);
+ 
+     libxl_domain_config_dispose(&d_config);
+     VIR_FREE(dom_xml);
+@@ -2098,7 +2098,7 @@
+     virDomainEventPtr event = NULL;
+     char *xml = NULL;
+     uint32_t xml_len;
+-    int fd;
++    int fd = -1;
+     int ret = -1;
+ 
+     if (virDomainObjGetState(vm, NULL) == VIR_DOMAIN_PAUSED) {
+@@ -3544,6 +3544,7 @@
+                 break;
+             case LIBXL_DEVICE_UPDATE:
+                 ret = libxlDomainUpdateDeviceConfig(vmdef, dev);
++                break;
+             default:
+                 virReportError(VIR_ERR_INTERNAL_ERROR,
+                                _("unknown domain modify action %d"), action);
+@@ -3568,6 +3569,7 @@
+                 break;
+             case LIBXL_DEVICE_UPDATE:
+                 ret = libxlDomainUpdateDeviceLive(priv, vm, dev);
++                break;
+             default:
+                 virReportError(VIR_ERR_INTERNAL_ERROR,
+                                _("unknown domain modify action %d"), action);

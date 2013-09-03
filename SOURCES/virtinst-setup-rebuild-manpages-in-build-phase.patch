@@ -1,0 +1,139 @@
+From 02aa9568d02b6625697b8667b0f15f74bca888c8 Mon Sep 17 00:00:00 2001
+Message-Id: <02aa9568d02b6625697b8667b0f15f74bca888c8.1355325886.git.jdenemar@redhat.com>
+From: Martin Kletzander <mkletzan@redhat.com>
+Date: Wed, 12 Dec 2012 14:22:37 +0100
+Subject: [PATCH 1/2] setup: rebuild manpages in build phase
+
+https://bugzilla.redhat.com/show_bug.cgi?id=832339
+
+Until now, the manpages were rebuilt only in sdist phase, this patch
+changes it to be part of the build phase as well.
+(cherry picked from commit 06838b3124e7dca4a4f495d10d438e75a6cc60ed)
+
+Conflicts:
+	setup.py -- older version of the _update_manpages function,
+              updated to prevent future conflicts
+
+Signed-off-by: Jiri Denemark <jdenemar@redhat.com>
+---
+ setup.py | 87 +++++++++++++++++++++++++++++++++++++---------------------------
+ 1 file changed, 50 insertions(+), 37 deletions(-)
+
+diff --git a/setup.py b/setup.py
+index 99fd867..f6b14bd 100755
+--- a/setup.py
++++ b/setup.py
+@@ -44,6 +44,52 @@ def _build_lang_data():
+         ret.append((targetpath, [newname]))
+     return ret
+ 
++def _update_manpages():
++    # Update virt-install.1 with latest os type/variant values
++    import virtinst.osdict as osdict
++
++    # Build list first
++    ret = []
++    for t in osdict.sort_helper(osdict.OS_TYPES):
++        for v in osdict.sort_helper(osdict.OS_TYPES[t]["variants"]):
++            label = osdict.OS_TYPES[t]["variants"][v]["label"]
++            if osdict.lookup_osdict_key(None, None, t, v, "supported"):
++                ret.append((v, label))
++
++    output = ""
++    output += "=over 2\n\n"
++
++    for v, label in ret:
++        output += "=item %-20s : %s\n\n" % (v, label)
++
++    output += "=back\n\n"
++
++    infile = "man/en/virt-install.pod.in"
++    outfile = "man/en/virt-install.pod"
++
++    outfd = open(outfile, "w+")
++    origout = outfd.read()
++    outfd.close()
++
++    infd  = open(infile, "r")
++    inp = infd.read()
++    infd.close()
++
++    outp = inp.replace("::VARIANT VALUES::", output)
++    if outp != origout or not(os.path.exists(outfile)):
++        outfd = open(outfile, "w")
++        outfd.write(outp)
++        outfd.close()
++
++    # Generate new manpages
++    if os.system("make -C man/en"):
++        raise RuntimeError("Couldn't generate man pages.")
++
++    if os.system("grep -IRq 'Hey!' man/en") == 0:
++        raise RuntimeError("man pages have errors in them! "
++                           "(grep for 'Hey!')")
++
++
+ # Config file building
+ config_files = ["virtinst/_config.py", "virtconv/_config.py"]
+ config_template = """
+@@ -260,46 +306,10 @@ class mysdist(sdist):
+         os.system(cmd)
+ 
+         # Update and generate man pages
+-        self._update_manpages()
++        _update_manpages()
+ 
+         sdist.run(self)
+ 
+-    def _update_manpages(self):
+-        # Update virt-install.1 with latest os type/variant values
+-        import virtinst.osdict as osdict
+-
+-        # Build list first
+-        ret = []
+-        for t in osdict.sort_helper(osdict.OS_TYPES):
+-            for v in osdict.sort_helper(osdict.OS_TYPES[t]["variants"]):
+-                label = osdict.OS_TYPES[t]["variants"][v]["label"]
+-                if osdict.lookup_osdict_key(None, None, t, v, "supported"):
+-                    ret.append((v, label))
+-
+-        output = ""
+-        output += "=over 2\n\n"
+-
+-        for v, label in ret:
+-            output += "=item %-20s : %s\n\n" % (v, label)
+-
+-        output += "=back\n\n"
+-
+-        infile = "man/en/virt-install.pod.in"
+-        outfile = "man/en/virt-install.pod"
+-
+-        infd  = open(infile, "r")
+-        outfd = open(outfile, "w")
+-
+-        inp = infd.read()
+-        infd.close()
+-
+-        outp = inp.replace("::VARIANT VALUES::", output)
+-        outfd.write(outp)
+-        outfd.close()
+-
+-        # Generate new manpages
+-        if os.system("make -C man/en"):
+-            raise RuntimeError("Couldn't generate man pages.")
+ 
+ class mybuild(build):
+     """ custom build command to compile i18n files"""
+@@ -345,6 +355,9 @@ class mybuild(build):
+ 
+         build.run(self)
+ 
++        # Update and generate man pages, but not before the build is done!
++        _update_manpages()
++
+ setup(
+     name='virtinst',
+     version=VERSION,
+-- 
+1.8.0
+

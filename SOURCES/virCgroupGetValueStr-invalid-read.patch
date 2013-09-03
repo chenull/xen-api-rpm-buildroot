@@ -1,0 +1,39 @@
+From 1bee06a4abd139b0d582ca93cfa9440f94dd5f90 Mon Sep 17 00:00:00 2001
+From: =?utf8?q?J=C3=A1n=20Tomko?= <jtomko@redhat.com>
+Date: Wed, 26 Jun 2013 13:07:24 +0200
+Subject: [PATCH] Fix invalid read in virCgroupGetValueStr
+
+Don't check for '\n' at the end of file if zero bytes were read.
+
+Found by valgrind:
+==404== Invalid read of size 1
+==404==    at 0x529B09F: virCgroupGetValueStr (vircgroup.c:540)
+==404==    by 0x529AF64: virCgroupMoveTask (vircgroup.c:1079)
+==404==    by 0x1EB475: qemuSetupCgroupForEmulator (qemu_cgroup.c:1061)
+==404==    by 0x1D9489: qemuProcessStart (qemu_process.c:3801)
+==404==    by 0x18557E: qemuDomainObjStart (qemu_driver.c:5787)
+==404==    by 0x190FA4: qemuDomainCreateWithFlags (qemu_driver.c:5839)
+
+Introduced by 0d0b409.
+
+https://bugzilla.redhat.com/show_bug.cgi?id=978356
+(cherry picked from commit 306c49ffd56a1c72b1892d50f2a75531c62f4a1d)
+---
+ src/util/cgroup.c |    2 +-
+ 1 files changed, 1 insertions(+), 1 deletions(-)
+
+diff --git a/src/util/cgroup.c b/src/util/cgroup.c
+index 778a52e..cc786c3 100644
+--- a/src/util/cgroup.c
++++ b/src/util/cgroup.c
+@@ -366,7 +366,7 @@ static int virCgroupGetValueStr(virCgroupPtr group,
+         VIR_DEBUG("Failed to read %s: %m\n", keypath);
+     } else {
+         /* Terminated with '\n' has sometimes harmful effects to the caller */
+-        if ((*value)[rc - 1] == '\n')
++        if (rc > 0 && (*value)[rc - 1] == '\n')
+             (*value)[rc - 1] = '\0';
+ 
+         rc = 0;
+-- 
+1.7.1

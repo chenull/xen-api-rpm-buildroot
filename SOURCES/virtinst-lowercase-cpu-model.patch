@@ -1,0 +1,47 @@
+commit 36c0e33c0ec1b725726679f6c904374578e25eba
+Author: Cole Robinson <crobinso@redhat.com>
+Date:   Mon Aug 29 11:53:05 2011 -0400
+
+    virt-install: Don't lowercase --cpu model name
+
+diff --git a/tests/cli-test-xml/compare/qemu-plain.xml b/tests/cli-test-xml/compare/qemu-plain.xml
+index 146c445..55ed250 100644
+--- a/tests/cli-test-xml/compare/qemu-plain.xml
++++ b/tests/cli-test-xml/compare/qemu-plain.xml
+@@ -11,6 +11,9 @@
+   <features>
+     <acpi/><apic/><pae/>
+   </features>
++  <cpu match='exact'>
++    <model>Penryn</model>
++  </cpu>
+   <clock offset="utc"/>
+   <on_poweroff>destroy</on_poweroff>
+   <on_reboot>restart</on_reboot>
+diff --git a/tests/clitest.py b/tests/clitest.py
+index 2db567c..6b17dd6 100644
+--- a/tests/clitest.py
++++ b/tests/clitest.py
+@@ -727,7 +727,8 @@ args_dict = {
+     # xenner
+     ("--os-variant fedora14 --nodisks --boot hd --paravirt", "kvm-xenner"),
+     # plain qemu
+-    ("--os-variant fedora14 --nodisks --boot cdrom --virt-type qemu",
++    ("--os-variant fedora14 --nodisks --boot cdrom --virt-type qemu "
++     "--cpu Penryn",
+      "qemu-plain"),
+     # 32 on 64
+     ("--os-variant fedora14 --nodisks --boot network --nographics --arch i686",
+diff --git a/virtinst/cli.py b/virtinst/cli.py
+index d5df5b9..3f31f36 100644
+--- a/virtinst/cli.py
++++ b/virtinst/cli.py
+@@ -1151,7 +1151,7 @@ def parse_optstr_tuples(optstr, compress_first=False):
+             opt_type, opt_val = opt.split("=", 1)
+             optlist.append((opt_type.lower(), opt_val))
+         else:
+-            optlist.append((opt.lower(), None))
++            optlist.append((opt, None))
+ 
+     return optlist
+ 

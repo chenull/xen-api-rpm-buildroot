@@ -1,0 +1,61 @@
+commit 02ed255e2244df050317bd961b3e779ab1b5393c
+Author: Jim Fehlig <jfehlig@suse.com>
+Date:   Mon Jan 21 10:32:34 2013 -0700
+
+    libxl: Fix removing non-persistent domain after save
+
+    libxlDoDomainSave() was removing non-persistent domains, but
+    required callers to have the virDomainObj locked.  Callers could
+    potentially unlock an already freed virDomainObj.  Move this
+    logic to the callers of libxlDoDomainSave().
+
+diff -r d10b4fed9c52 src/libxl/libxl_driver.c
+--- a/src/libxl/libxl_driver.c	Mon Jan 21 10:22:07 2013 -0700
++++ b/src/libxl/libxl_driver.c	Wed May 01 15:23:13 2013 +0100
+@@ -2020,12 +2020,6 @@ libxlDoDomainSave(libxlDriverPrivatePtr 
+     }
+ 
+     vm->hasManagedSave = true;
+-
+-    if (!vm->persistent) {
+-        virDomainRemoveInactive(&driver->domains, vm);
+-        vm = NULL;
+-    }
+-
+     ret = 0;
+ 
+ cleanup:
+@@ -2068,7 +2062,15 @@ libxlDomainSaveFlags(virDomainPtr dom, c
+         goto cleanup;
+     }
+ 
+-    ret = libxlDoDomainSave(driver, vm, to);
++    if (libxlDoDomainSave(driver, vm, to) < 0)
++        goto cleanup;
++
++    if (!vm->persistent) {
++        virDomainRemoveInactive(&driver->domains, vm);
++        vm = NULL;
++    }
++
++    ret = 0;
+ 
+ cleanup:
+     if (vm)
+@@ -2267,7 +2269,15 @@ libxlDomainManagedSave(virDomainPtr dom,
+ 
+     VIR_INFO("Saving state to %s", name);
+ 
+-    ret = libxlDoDomainSave(driver, vm, name);
++    if (libxlDoDomainSave(driver, vm, name) < 0)
++        goto cleanup;
++
++    if (!vm->persistent) {
++        virDomainRemoveInactive(&driver->domains, vm);
++        vm = NULL;
++    }
++
++    ret = 0;
+ 
+ cleanup:
+     if (vm)

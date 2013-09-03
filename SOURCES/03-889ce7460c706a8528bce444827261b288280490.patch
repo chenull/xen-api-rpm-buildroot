@@ -1,0 +1,86 @@
+commit 889ce7460c706a8528bce444827261b288280490
+Author: Jim Fehlig <jfehlig@suse.com>
+Date:   Mon Jan 21 10:22:07 2013 -0700
+
+    libxl: Fix race between destruction of objects
+
+    It is possible to destroy and cleanup a VM, resulting in freeing the
+    libxlDomainObjPrivate object and associated libxl ctx, before all fds and
+    timeouts have been deregistered and destroyed.
+
+    Fix this race by incrementing the reference count on libxlDomainObjPrivate
+    for each fd and timeout registration.  Only when all fds and timeouts are
+    deregistered and destroyed will the libxlDomainObjPrivate be destroyed.
+
+diff -r ed9af5dde0ce src/libxl/libxl_driver.c
+--- a/src/libxl/libxl_driver.c	Mon Jan 21 10:09:05 2013 -0700
++++ b/src/libxl/libxl_driver.c	Thu May 02 18:10:17 2013 +0100
+@@ -101,7 +101,11 @@ libxlDriverUnlock(libxlDriverPrivatePtr 
+ static void
+ libxlEventHookInfoFree(void *obj)
+ {
+-    VIR_FREE(obj);
++    libxlEventHookInfoPtr info = obj;
++
++    /* Drop reference on libxlDomainObjPrivate */
++    virObjectUnref(info->priv);
++    VIR_FREE(info);
+ }
+ 
+ static void libxlFDEventCallback(int watch ATTRIBUTE_UNUSED,
+@@ -137,6 +141,14 @@ static int libxlFDRegisterEventHook(void
+         return -1;
+     }
+ 
++    info->priv = priv;
++    /*
++     * Take a reference on the domain object.  Reference is dropped in
++     * libxlEventHookInfoFree, ensuring the domain object outlives the fd
++     * event objects.
++     */
++    virObjectRef(info->priv);
++
+     if (events & POLLIN)
+         vir_events |= VIR_EVENT_HANDLE_READABLE;
+     if (events & POLLOUT)
+@@ -144,11 +156,11 @@ static int libxlFDRegisterEventHook(void
+     info->id = virEventAddHandle(fd, vir_events, libxlFDEventCallback,
+                                  info, libxlEventHookInfoFree);
+     if (info->id < 0) {
++        virObjectUnref(info->priv);
+         VIR_FREE(info);
+         return -1;
+     }
+ 
+-    info->priv = priv;
+     info->xl_priv = xl_priv;
+     *hndp = info;
+ 
+@@ -224,6 +236,14 @@ static int libxlTimeoutRegisterEventHook
+         return -1;
+     }
+ 
++    info->priv = priv;
++    /*
++     * Also take a reference on the domain object.  Reference is dropped in
++     * libxlEventHookInfoFree, ensuring the domain object outlives the timeout
++     * event objects.
++     */
++    virObjectRef(info->priv);
++
+     gettimeofday(&now, NULL);
+     timersub(&abs_t, &now, &res);
+     /* Ensure timeout is not overflowed */
+@@ -237,11 +257,11 @@ static int libxlTimeoutRegisterEventHook
+     info->id = virEventAddTimeout(timeout, libxlTimerCallback,
+                                   info, libxlEventHookInfoFree);
+     if (info->id < 0) {
++        virObjectUnref(info->priv);
+         VIR_FREE(info);
+         return -1;
+     }
+ 
+-    info->priv = priv;
+     info->xl_priv = xl_priv;
+     *hndp = info;
+ 
