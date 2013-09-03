@@ -212,7 +212,7 @@ Summary: Libraries for Xen tools
 Group: Development/Libraries
 Provides: xen-hypervisor-abi = %{hv_abi}
 Requires: xen-licenses
-Requires: kernel >= 3.4.26
+Requires: kernel >= 2.6.32 
 
 %description hypervisor
 This package contains the Xen hypervisor
